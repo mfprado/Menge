@@ -24,11 +24,12 @@
 #ifndef __MYMODEL_AGENT_H__
 #define	__MYMODEL_AGENT_H__
 
+#include <glm/vec2.hpp>
 #include "MengeCore/Agents/BaseAgent.h"
 
 namespace MyModel {
 	/*!
-	 *	@brief		The "dummy" agent class.
+	 *	@brief		My model agent class.
 	 *
 	 *	The dummy agent does nothing clever or even correct.  Given
 	 *	the preferred velocity, its final velocity is simply a random
@@ -36,6 +37,8 @@ namespace MyModel {
 	 */
 	class Agent : public Menge::Agents::BaseAgent {
 	public:
+        glm::vec2 position;
+
 		/*!
 		 *	@brief		Constructor
 		 */

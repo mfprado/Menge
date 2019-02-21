@@ -28,7 +28,10 @@
 #include "MengeCore/mengeCommon.h"
 #include "MengeCore/Agents/SimulatorBase.h"	
 #include "MengeCore/Math/RandGenerator.h"
-
+#include "DensityField.h"
+#include <iostream>
+#include <math.h>
+using namespace std;
 /*!
  *	@namespace		MyModel
  *	@brief			The name space for the MyModel pedestrian model.
@@ -77,6 +80,24 @@ namespace MyModel {
 		virtual bool setExpParam( const std::string & paramName, const std::string & value )
 			throw ( Menge::Agents::XMLParamException );
 
+		virtual void doStep();
+
+		SharedGrid* mainGrid;
+		DensityField densityField;
+
+		/*!
+		 *	@brief		map min x,y and max x,y delimit the map.
+		 *	Define the possible positions where the agents will move.
+		 */
+		int mapMinX;
+		int mapMaxX;
+		int mapMinY;
+		int mapMaxY;
+
+        bool gridInitialized = false;
+
+		void initializeGrid();
+
 	protected:
 		friend class Agent;
 
@@ -89,7 +110,8 @@ namespace MyModel {
 		 *	@brief		The uniform distribution of direction
 		 */
 		static Menge::Math::UniformFloatGenerator	_angleDeviation;
-	};
+
+    };
 }	// namespace MyModel
 
 #endif	 // __MYMODEL_SIMULATOR_H__

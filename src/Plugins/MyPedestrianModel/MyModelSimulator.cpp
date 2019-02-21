@@ -61,11 +61,25 @@ namespace MyModel {
 
 	bool Simulator::setExpParam( const std::string & paramName, const std::string & value )
 		throw( XMLParamException ) {
+		std::printf("Setting exp param my model\n");
 		try {
 			if ( paramName == "stddev" ) {
+				cout << "Setting stddev\n";
 				float stddev = toFloat( value );
 				const float HALF_RANGE = 3.f * stddev;
 				_speedDeviation.set( 0.f, stddev, -HALF_RANGE, HALF_RANGE );
+			} else if ( paramName == "map_min_x" ) {
+                mapMinX = static_cast<int>(toFloat(value));
+                cout << "Map min x set: " << mapMinX << "\n";
+            } else if ( paramName == "map_min_y" ) {
+				mapMinY = static_cast<int>(toFloat(value));
+                cout << "Map min y set: " << mapMinY << "\n";
+			} else if ( paramName == "map_max_x" ) {
+				mapMaxX = static_cast<int>(toFloat(value));
+                cout << "Map max x set: " << mapMaxX << "\n";
+			} else if ( paramName == "map_max_y" ) {
+				mapMaxY = static_cast<int>(toFloat(value));
+                cout << "Map max y set: " << mapMaxY << "\n";
 			} else if ( ! SimulatorBase<Agent>::setExpParam( paramName, value ) ) {
 				// Simulator base didn't recognize the parameter either
 				return false;
@@ -77,4 +91,39 @@ namespace MyModel {
 		}
 		return true;
 	}
-}	//namespace MyModel 
+
+	////////////////////////////////////////////////////////////////////
+
+	void Simulator::initializeGrid() {
+	    std::printf("Initializing grid\n");
+		mainGrid = new SharedGrid(mapMinX, mapMinY, mapMaxX, mapMaxY);
+		densityField.grid = mainGrid;
+		gridInitialized = true;
+	}
+
+	void Simulator::doStep() {
+		if (not gridInitialized) initializeGrid();
+        std::printf("Agent do step computation\n");
+        assert( _spatialQuery != 0x0 && "Can't run without a spatial query instance defined" );
+        _spatialQuery->updateAgents();
+        int AGT_COUNT = static_cast< int >( _agents.size() );
+
+        densityField.update(_agents);
+		#pragma omp parallel for
+        for (int i = 0; i < AGT_COUNT; ++i) {
+			_agents[i].computeNewVelocity();
+		}
+
+		#pragma omp parallel for
+				for (int i = 0; i < AGT_COUNT; ++i) {
+					_agents[i].update( TIME_STEP );
+				}
+
+				_globalTime += TIME_STEP;
+
+	}
+
+
+
+
+}	//namespace MyModel
